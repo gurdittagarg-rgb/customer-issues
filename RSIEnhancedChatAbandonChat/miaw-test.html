@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MIAW Default Behaviour Test</title>
+</head>
+<body>
+    <h1>MIAW - Default Out-of-the-Box</h1>
+    <p>No custom code. Just the standard Salesforce embed snippet.</p>
+
+    <script type="text/javascript">
+        function initEmbeddedMessaging() {
+            try {
+                embeddedservice_bootstrap.settings.language = 'en_US';
+                embeddedservice_bootstrap.init(
+                    '00Dak00000sEqg8',
+                    'SDO_Messaging_for_Web',
+                    'https://trailsignup-6e56dfe7b2a6dc.my.site.com/ESWSDOMessagingforWeb1777410150100',
+                    {
+                        scrt2URL: 'https://trailsignup-6e56dfe7b2a6dc.my.salesforce-scrt.com'
+                    }
+                );
+            } catch (err) {
+                console.error('Error loading Embedded Messaging: ', err);
+            }
+        }
+    </script>
+    <script type="text/javascript" async
+        src="https://trailsignup-6e56dfe7b2a6dc.my.site.com/ESWSDOMessagingforWeb1777410150100/assets/js/bootstrap.min.js"
+        onload="initEmbeddedMessaging()">
+    </script>
+</body>
+</html>

@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Copilot + MCP vs Agentforce + Data Cloud — Semantic Retrieval Comparison</title>
+<style>
+  :root {
+    --bg: #f6f7fb;
+    --card-bg: #ffffff;
+    --ink: #1f2937;
+    --ink-soft: #4b5563;
+    --muted: #6b7280;
+    --line: #d1d5db;
+    --neutral: #e9e6df;
+    --neutral-ink: #3f3a31;
+    --copilot-bg: #eee9ff;
+    --copilot-border: #b9aef0;
+    --copilot-ink: #4b3ea3;
+    --agent-bg: #d8efe4;
+    --agent-border: #88cdac;
+    --agent-ink: #1f6b48;
+    --warn-bg: #fff5f5;
+    --warn-border: #f3b4b4;
+    --warn-ink: #a13838;
+    --good-bg: #f1faf4;
+    --good-border: #a4d8b8;
+    --good-ink: #1f6b48;
+    --shadow: 0 1px 2px rgba(15,23,42,.06), 0 4px 14px rgba(15,23,42,.05);
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Inter", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    line-height: 1.45;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  header.page-header {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 32px 24px 8px;
+  }
+  header.page-header h1 {
+    margin: 0 0 6px;
+    font-size: 26px;
+    letter-spacing: -0.01em;
+  }
+  header.page-header p.subtitle {
+    margin: 0;
+    color: var(--ink-soft);
+    font-size: 14.5px;
+    max-width: 920px;
+  }
+
+  .demo-banner {
+    max-width: 1200px;
+    margin: 18px auto 0;
+    padding: 14px 18px;
+    background: #fffbe6;
+    border: 1px solid #f0d97a;
+    border-radius: 8px;
+    color: #5b4a09;
+    font-size: 13.5px;
+  }
+  .demo-banner strong { color: #3d3104; }
+
+  .legend {
+    max-width: 1200px;
+    margin: 16px auto 0;
+    padding: 0 24px;
+    display: flex;
+    gap: 14px;
+    flex-wrap: wrap;
+    font-size: 12.5px;
+    color: var(--muted);
+  }
+  .legend-item { display: inline-flex; align-items: center; gap: 6px; }
+  .legend-swatch {
+    width: 14px; height: 14px; border-radius: 3px; border: 1px solid var(--line);
+  }
+  .swatch-copilot { background: var(--copilot-bg); border-color: var(--copilot-border); }
+  .swatch-agent { background: var(--agent-bg); border-color: var(--agent-border); }
+  .swatch-shared { background: var(--neutral); border-color: #c8c2b6; }
+
+  .compare {
+    max-width: 1200px;
+    margin: 18px auto 0;
+    padding: 8px 24px 36px;
+    display: grid;
+    grid-template-columns: 1fr 1px 1fr;
+    gap: 24px;
+    align-items: start;
+  }
+
+  .divider {
+    height: 100%;
+    border-left: 1px dashed #cbd0d8;
+    margin: 0 auto;
+  }
+
+  .column-title {
+    border-radius: 10px;
+    padding: 14px 16px;
+    text-align: center;
+    font-weight: 600;
+    font-size: 15px;
+    box-shadow: var(--shadow);
+    margin-bottom: 14px;
+  }
+  .col-copilot .column-title {
+    background: var(--copilot-bg);
+    color: var(--copilot-ink);
+    border: 1px solid var(--copilot-border);
+  }
+  .col-agent .column-title {
+    background: var(--agent-bg);
+    color: var(--agent-ink);
+    border: 1px solid var(--agent-border);
+  }
+
+  .step {
+    position: relative;
+    border-radius: 8px;
+    padding: 12px 14px;
+    margin: 0 0 12px;
+    background: var(--card-bg);
+    border: 1px solid var(--line);
+    box-shadow: var(--shadow);
+    cursor: pointer;
+    transition: transform .12s ease, box-shadow .12s ease, border-color .12s ease;
+    text-align: center;
+  }
+  .step:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(15,23,42,.08), 0 8px 22px rgba(15,23,42,.07);
+  }
+  .step.active {
+    outline: 2px solid #1f4ed8;
+    outline-offset: 2px;
+  }
+  .step .title {
+    font-weight: 600;
+    font-size: 14px;
+  }
+  .step .sub {
+    margin-top: 3px;
+    font-size: 12.5px;
+    color: var(--ink-soft);
+  }
+
+  .step.shared { background: var(--neutral); border-color: #c8c2b6; }
+  .step.shared .title, .step.shared .sub { color: var(--neutral-ink); }
+
+  .step.copilot {
+    background: var(--copilot-bg);
+    border-color: var(--copilot-border);
+  }
+  .step.copilot .title { color: var(--copilot-ink); }
+  .step.copilot .sub { color: #5e51b1; }
+
+  .step.agent {
+    background: var(--agent-bg);
+    border-color: var(--agent-border);
+  }
+  .step.agent .title { color: var(--agent-ink); }
+  .step.agent .sub { color: #2c7d59; }
+
+  .arrow {
+    text-align: center;
+    color: #94a3b8;
+    font-size: 18px;
+    line-height: 1;
+    margin: -4px 0 8px;
+    user-select: none;
+  }
+
+  .callout {
+    margin-top: 10px;
+    border-radius: 10px;
+    padding: 14px 16px;
+    border: 1.5px dashed transparent;
+    font-size: 13px;
+  }
+  .callout .label {
+    font-weight: 700;
+    font-size: 12px;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+  .callout.warn {
+    background: var(--warn-bg);
+    border-color: var(--warn-border);
+    color: var(--warn-ink);
+  }
+  .callout.good {
+    background: var(--good-bg);
+    border-color: var(--good-border);
+    color: var(--good-ink);
+  }
+
+  .pill {
+    margin-top: 14px;
+    text-align: center;
+    font-size: 12.5px;
+    color: var(--muted);
+  }
+  .pill span {
+    display: inline-block;
+    padding: 6px 12px;
+    border-radius: 999px;
+    background: #fff;
+    border: 1px solid var(--line);
+    box-shadow: var(--shadow);
+  }
+
+  /* Detail panel */
+  .detail-wrap {
+    max-width: 1200px;
+    margin: 0 auto 20px;
+    padding: 0 24px;
+  }
+  .detail {
+    background: #ffffff;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 18px 22px;
+    box-shadow: var(--shadow);
+    min-height: 96px;
+    transition: border-color .15s ease;
+  }
+  .detail.copilot-on { border-color: var(--copilot-border); }
+  .detail.agent-on { border-color: var(--agent-border); }
+  .detail h3 {
+    margin: 0 0 8px;
+    font-size: 16px;
+  }
+  .detail .meta {
+    font-size: 12px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    margin-bottom: 6px;
+  }
+  .detail p { margin: 6px 0; color: var(--ink-soft); font-size: 14px; }
+  .detail ul { margin: 6px 0 0 18px; padding: 0; }
+  .detail li { margin: 4px 0; font-size: 13.5px; color: var(--ink-soft); }
+  .detail .demo-tip {
+    margin-top: 10px;
+    padding: 10px 12px;
+    background: #f0f4ff;
+    border-left: 3px solid #4f6bd6;
+    border-radius: 4px;
+    font-size: 13px;
+    color: #1e2a55;
+  }
+  .detail .demo-tip strong { color: #122069; }
+
+  /* Summary table */
+  .summary {
+    max-width: 1200px;
+    margin: 8px auto 48px;
+    padding: 0 24px;
+  }
+  .summary h2 {
+    font-size: 18px;
+    margin: 18px 0 10px;
+  }
+  table.compare-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    font-size: 13.5px;
+  }
+  table.compare-table th, table.compare-table td {
+    padding: 10px 14px;
+    text-align: left;
+    border-bottom: 1px solid #eef0f4;
+    vertical-align: top;
+  }
+  table.compare-table th {
+    background: #fafbfd;
+    font-weight: 600;
+    color: var(--ink);
+  }
+  table.compare-table th.copilot { background: var(--copilot-bg); color: var(--copilot-ink); }
+  table.compare-table th.agent { background: var(--agent-bg); color: var(--agent-ink); }
+  table.compare-table tr:last-child td { border-bottom: none; }
+
+  .talking-points {
+    max-width: 1200px;
+    margin: 0 auto 48px;
+    padding: 0 24px;
+  }
+  .talking-points h2 { font-size: 18px; margin: 18px 0 10px; }
+  .talking-points ol { padding-left: 22px; }
+  .talking-points li { margin: 8px 0; color: var(--ink-soft); font-size: 14px; }
+
+  @media (max-width: 900px) {
+    .compare { grid-template-columns: 1fr; }
+    .divider { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<header class="page-header">
+  <h1>Why semantic retrieval beats SOQL+LLM at scale</h1>
+  <p class="subtitle">
+    Microsoft Copilot can connect to Salesforce via MCP. Agentforce + Data Cloud can run standalone or be surfaced inside Microsoft Teams. Both can answer the same question — but the result quality diverges sharply once your record volume grows. Click any step below to see why.
+  </p>
+</header>
+
+<div class="demo-banner">
+  The difference is not the channel (Teams vs. Salesforce UI) — it is <em>where the semantic step happens</em>. Copilot relies on the LLM's attention over a SOQL-fetched subset; Agentforce + Data Cloud relies on a vector index built over the entire corpus before the LLM is ever called.
+</div>
+
+<div class="legend">
+  <span class="legend-item"><span class="legend-swatch swatch-copilot"></span> Copilot / MCP path</span>
+  <span class="legend-item"><span class="legend-swatch swatch-agent"></span> Agentforce / Data Cloud path</span>
+  <span class="legend-item"><span class="legend-swatch swatch-shared"></span> Shared (user input / final answer)</span>
+</div>
+
+<section class="compare" aria-label="Architecture comparison">
+
+  <!-- LEFT COLUMN -->
+  <div class="col-copilot">
+    <div class="column-title">LLM + Salesforce MCP <span style="opacity:.7">(e.g. MS Copilot)</span></div>
+
+    <div class="step shared" data-id="c1" data-side="copilot">
+      <div class="title">User query</div>
+      <div class="sub">"Find SLA violation cases"</div>
+    </div>
+    <div class="arrow">↓</div>
+
+    <div class="step copilot" data-id="c2" data-side="copilot">
+      <div class="title">Copilot writes SOQL</div>
+      <div class="sub">LLM translates intent to query</div>
+    </div>
+    <div class="arrow">↓</div>
+
+    <div class="step shared" data-id="c3" data-side="copilot">
+      <div class="title">MCP executes the query</div>
+      <div class="sub">Transport layer — runs SOQL</div>
+    </div>
+    <div class="arrow">↓</div>
+
+    <div class="step shared" data-id="c4" data-side="copilot">
+      <div class="title">Salesforce database</div>
+      <div class="sub">Returns top N matching records</div>
+    </div>
+    <div class="arrow">↓</div>
+
+    <div class="step copilot" data-id="c5" data-side="copilot">
+      <div class="title">Copilot context window</div>
+      <div class="sub">Raw records loaded as plain text</div>
+    </div>
+    <div class="arrow">↓</div>
+
+    <div class="step copilot" data-id="c6" data-side="copilot">
+      <div class="title">LLM attention mechanism</div>
+      <div class="sub">Reads &amp; reasons over all text</div>
+    </div>
+    <div class="arrow">↓</div>
+
+    <div class="step shared" data-id="c7" data-side="copilot">
+      <div class="title">Answer generated</div>
+      <div class="sub">Only from records Copilot received</div>
+    </div>
+
+    <div class="callout warn">
+      <div class="label">Limitation</div>
+      If 5,000 cases exist, Copilot only sees the SOQL-fetched subset. Relevant cases may never appear.
+    </div>
+
+    <div class="pill"><span>Semantic = LLM attention</span></div>
+  </div>
+
+  <div class="divider" aria-hidden="true"></div>
+
+  <!-- RIGHT COLUMN -->
+  <div class="col-agent">
+    <div class="column-title">Agentforce + Data Cloud <span style="opacity:.7">(direct or via MS Teams)</span></div>
+
+    <div class="step shared" data-id="a1" data-side="agent">
+      <div class="title">User query</div>
+      <div class="sub">"Find SLA violation cases"</div>
+    </div>
+    <div class="arrow">↓</div>
+
+    <div class="step agent" data-id="a2" data-side="agent">
+      <div class="title">Embedding model</div>
+      <div class="sub">Query → vector representation</div>
+    </div>
+    <div class="arrow">↓</div>
+
+    <div class="step agent" data-id="a3" data-side="agent">
+      <div class="title">Data Cloud vector store</div>
+      <div class="sub">ANN search across all records</div>
+    </div>
+    <div class="arrow">↓</div>
+
+    <div class="step agent" data-id="a4" data-side="agent">
+      <div class="title">Top-K retrieval</div>
+      <div class="sub">Most semantically similar chunks</div>
+    </div>
+    <div class="arrow">↓</div>
+
+    <div class="step agent" data-id="a5" data-side="agent">
+      <div class="title">LLM (augmented generation)</div>
+      <div class="sub">Reasons over pre-filtered chunks</div>
+    </div>
+    <div class="arrow">↓</div>
+
+    <div class="step shared" data-id="a6" data-side="agent">
+      <div class="title">Answer generated</div>
+      <div class="sub">From entire corpus, pre-indexed</div>
+    </div>
+
+    <div class="callout good">
+      <div class="label">Advantage</div>
+      All 5,000 cases vectorized at index time. Semantic similarity finds relevant cases at any scale.
+    </div>
+
+    <div class="pill"><span>Semantic = vector cosine search</span></div>
+  </div>
+</section>
+
+<div class="detail-wrap">
+  <div class="detail" id="detail">
+    <div class="meta">Click any step</div>
+    <h3>Click any box above to explore further</h3>
+    <p>Each step expands with what is happening, why it matters, and what to call out during the demo.</p>
+  </div>
+</div>
+
+<section class="summary">
+  <h2>Side-by-side summary</h2>
+  <table class="compare-table">
+    <thead>
+      <tr>
+        <th style="width:20%">Dimension</th>
+        <th class="copilot" style="width:40%">Copilot + Salesforce MCP</th>
+        <th class="agent" style="width:40%">Agentforce + Data Cloud</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Where retrieval happens</td>
+        <td>At <strong>query time</strong>, via SOQL the LLM authors</td>
+        <td>At <strong>index time</strong>, via vectors built on ingest</td>
+      </tr>
+      <tr>
+        <td>What "semantic" means</td>
+        <td>LLM <em>attention</em> over whatever text was fetched</td>
+        <td><em>Cosine similarity</em> over embeddings of the full corpus</td>
+      </tr>
+      <tr>
+        <td>Recall ceiling</td>
+        <td>Bounded by SOQL filter accuracy and result row caps</td>
+        <td>Bounded by embedding quality, not row count</td>
+      </tr>
+      <tr>
+        <td>Failure mode</td>
+        <td>Misses records that don't match keywords in WHERE clause</td>
+        <td>Misses records only when embedding poorly captures meaning</td>
+      </tr>
+      <tr>
+        <td>Sharing model</td>
+        <td>Inherits Salesforce sharing through MCP user context</td>
+        <td>Honored via Data Cloud sharing + agent-level policy enforcement</td>
+      </tr>
+      <tr>
+        <td>Channel</td>
+        <td>Microsoft 365 / Teams (Copilot host)</td>
+        <td>Standalone Salesforce, embedded, or surfaced inside Teams</td>
+      </tr>
+      <tr>
+        <td>Best for</td>
+        <td>Small, well-scoped lookups where keywords are precise</td>
+        <td>Open-ended, semantic, large-corpus questions</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<section class="talking-points">
+  <h2>Demo talking points</h2>
+  <ol>
+    <li><strong>Channel parity, capability divergence.</strong> Both stacks can be reached from Teams. The user experience looks similar; the result quality is not.</li>
+    <li><strong>The SOQL trap.</strong> The Copilot path is only as good as the SOQL the LLM writes. "SLA violation" is not a field — the LLM has to <em>guess</em> a WHERE clause, and any case it doesn't fetch is invisible.</li>
+    <li><strong>Pre-indexed vs. on-demand.</strong> Agentforce + Data Cloud does the semantic work <em>before</em> the question is asked, by embedding every record. The LLM only reasons over already-relevant material.</li>
+    <li><strong>Scale is where the gap shows.</strong> At 50 records the two paths look identical. At 50,000 records, only the vector path keeps recall high — the SOQL path silently drops relevant rows.</li>
+    <li><strong>Governance is not the differentiator.</strong> Both honor Salesforce sharing. The differentiator is recall + reasoning quality on long-tail, semantic queries.</li>
+  </ol>
+</section>
+
+<script>
+  const details = {
+    c1: {
+      side: 'copilot',
+      title: 'User query — "Find SLA violation cases"',
+      meta: 'Step 1 · Shared',
+      body: `<p>The user types a natural-language question into Copilot (typically inside Teams or Microsoft 365). Same input as the Agentforce path — this is the only step that is identical between the two stacks.</p>`,
+      tip: `Open the demo by saying: "Same input, same channel — let's watch what each stack does next."`
+    },
+    c2: {
+      side: 'copilot',
+      title: 'Copilot writes SOQL',
+      meta: 'Step 2 · Copilot path',
+      body: `<p>Copilot's LLM has to translate the user's intent into a structured SOQL query. It guesses fields, operators, and limits. This is where most of the recall is lost — the LLM must invent a query it has no semantic feedback on.</p>
+      <ul>
+        <li>"SLA violation" is not a field — it has to be inferred (e.g. <code>Status</code>, <code>Priority</code>, <code>EscalatedReason</code>).</li>
+        <li>Any record not matching that WHERE clause is invisible to the rest of the pipeline.</li>
+        <li>Synonyms, paraphrases, and free-text descriptions are not handled.</li>
+      </ul>`,
+      tip: `Call out: "The LLM is doing keyword search, not semantic search — and it has to author the keywords blind."`
+    },
+    c3: {
+      side: 'copilot',
+      title: 'MCP executes the query',
+      meta: 'Step 3 · Shared transport',
+      body: `<p>The Salesforce MCP server is a transport layer. It receives the SOQL Copilot wrote, executes it as the authenticated user, and returns rows. MCP itself adds no intelligence — it is plumbing, governed by user permissions and sharing rules.</p>`,
+      tip: `Reassure on governance: "Sharing rules are honored — this is not the problem. The problem is upstream: what query got written."`
+    },
+    c4: {
+      side: 'copilot',
+      title: 'Salesforce database returns top N records',
+      meta: 'Step 4 · Shared',
+      body: `<p>The org returns whatever rows match the SOQL. There is a hard row cap (typically 200 with MCP's default page; up to 50,000 in raw SOQL). Anything beyond the cap, or anything the WHERE clause missed, is dropped here forever.</p>`,
+      tip: `Show the math: "5,000 cases × top-200 fetch = 4,800 cases the LLM will never see."`
+    },
+    c5: {
+      side: 'copilot',
+      title: 'Copilot context window — raw records as text',
+      meta: 'Step 5 · Copilot path',
+      body: `<p>The fetched rows are serialized into the LLM's context window as plain text. There is no embedding, no similarity ranking — just rows in, tokens out.</p>
+      <ul>
+        <li>Token budget pressure: large rows squeeze out other rows.</li>
+        <li>Order matters — LLMs attend less reliably to the middle of a long context.</li>
+      </ul>`,
+      tip: `"This is a context-stuffing pattern, not a retrieval pattern."`
+    },
+    c6: {
+      side: 'copilot',
+      title: 'LLM attention is the only "semantic" step',
+      meta: 'Step 6 · Copilot path',
+      body: `<p>This is the box people hand-wave when they say "Copilot does semantic search." It does not. The <em>only</em> semantic operation in this pipeline is the LLM's attention mechanism reading the text it was handed. If the right record was not fetched, no amount of attention will surface it.</p>`,
+      tip: `Drop the line: "Attention is semantic reasoning over what's in the window. It cannot retrieve what isn't there."`
+    },
+    c7: {
+      side: 'copilot',
+      title: 'Answer generated — bounded by what was fetched',
+      meta: 'Step 7 · Shared output',
+      body: `<p>The answer is fluent and confident — but only as good as the SOQL guess. Worst case: a confident, well-written answer that misses the actual SLA-violating case because the WHERE clause didn't catch it.</p>`,
+      tip: `"This is the silent-failure mode. The user has no way to know what was missed."`
+    },
+
+    a1: {
+      side: 'agent',
+      title: 'User query — "Find SLA violation cases"',
+      meta: 'Step 1 · Shared',
+      body: `<p>Same input as the Copilot path. The user could be inside the Salesforce app, the Agentforce site, or surfaced via a Microsoft Teams channel — the channel is interchangeable.</p>`,
+      tip: `Reinforce: "Channel is not the variable. Architecture is."`
+    },
+    a2: {
+      side: 'agent',
+      title: 'Embedding model — query becomes a vector',
+      meta: 'Step 2 · Agentforce path',
+      body: `<p>Before any retrieval happens, the query is converted into an embedding — a high-dimensional vector that captures meaning, not just keywords. "SLA violation" and "missed response time" land near each other in vector space.</p>`,
+      tip: `"This is where 'semantic' actually becomes a math operation, not just a buzzword."`
+    },
+    a3: {
+      side: 'agent',
+      title: 'Data Cloud vector store — ANN search over all records',
+      meta: 'Step 3 · Agentforce path',
+      body: `<p>Data Cloud has already embedded every case (and any other ingested object) at indexing time. Approximate Nearest Neighbor (ANN) search returns the most semantically similar records across the <em>entire</em> corpus — no SOQL, no WHERE clause guess.</p>
+      <ul>
+        <li>Index built once at ingest, queried many times.</li>
+        <li>Sharing and access policies enforced at retrieval time.</li>
+        <li>Scales to millions of records without query-time cost growth.</li>
+      </ul>`,
+      tip: `"The expensive work happened on a schedule. Query time is just a vector lookup."`
+    },
+    a4: {
+      side: 'agent',
+      title: 'Top-K retrieval — pre-filtered, semantically ranked',
+      meta: 'Step 4 · Agentforce path',
+      body: `<p>The top K most relevant records are returned, ranked by cosine similarity. The LLM receives a focused, high-signal context — not an arbitrary SOQL slice.</p>`,
+      tip: `"Same token budget, dramatically higher signal density."`
+    },
+    a5: {
+      side: 'agent',
+      title: 'LLM augmented generation',
+      meta: 'Step 5 · Agentforce path',
+      body: `<p>Now the LLM reasons — but over chunks that have already been ranked for relevance. This is classic RAG: retrieval narrows the field, generation produces the answer.</p>`,
+      tip: `"Retrieval is the heavy lifting. Generation is the polish."`
+    },
+    a6: {
+      side: 'agent',
+      title: 'Answer generated — backed by the full corpus',
+      meta: 'Step 6 · Shared output',
+      body: `<p>Answer quality is bounded by embedding quality, not by a query the LLM had to guess. As the corpus grows, recall stays high; the architecture does not degrade with scale.</p>`,
+      tip: `Closer: "Same question, same channel, very different ceiling on what 'good' looks like."`
+    }
+  };
+
+  const detailEl = document.getElementById('detail');
+  const steps = document.querySelectorAll('.step');
+
+  function render(id) {
+    const d = details[id];
+    if (!d) return;
+    steps.forEach(s => s.classList.toggle('active', s.dataset.id === id));
+    detailEl.classList.toggle('copilot-on', d.side === 'copilot');
+    detailEl.classList.toggle('agent-on', d.side === 'agent');
+    detailEl.innerHTML = `
+      <div class="meta">${d.meta}</div>
+      <h3>${d.title}</h3>
+      ${d.body}
+      ${d.tip ? `<div class="demo-tip"><strong>Demo tip:</strong> ${d.tip}</div>` : ''}
+    `;
+  }
+
+  steps.forEach(step => {
+    step.addEventListener('click', () => render(step.dataset.id));
+    step.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        render(step.dataset.id);
+      }
+    });
+    step.setAttribute('tabindex', '0');
+    step.setAttribute('role', 'button');
+  });
+</script>
+
+</body>
+</html>
