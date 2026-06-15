@@ -7,11 +7,13 @@ Test pages for reproducing and debugging Salesforce Messaging for In-App and Web
 | Customer | Page | Description |
 |----------|------|-------------|
 | RSI | [RSIEnhancedChatAbandonChat/miaw-test.html](RSIEnhancedChatAbandonChat/miaw-test.html) | Default OOTB embedded messaging behaviour test — no custom code, standard Salesforce snippet only |
+| RSI | [RSIEnhancedChatAbandonChat/rsi-full.html](RSIEnhancedChatAbandonChat/rsi-full.html) | Web Messaging Channel on RSI Full sandbox |
 | CallRevu | [CallRevu/copilot-vs-agentforce-rag.html](CallRevu/copilot-vs-agentforce-rag.html) | Copilot vs Agentforce RAG comparison |
 
 ## Live URLs (GitHub Pages)
 
 - RSI MIAW Test: https://gurdittagarg-rgb.github.io/customer-rsi-miaw-issue/RSIEnhancedChatAbandonChat/miaw-test.html
+- RSI Full Sandbox: https://gurdittagarg-rgb.github.io/customer-rsi-miaw-issue/RSIEnhancedChatAbandonChat/rsi-full.html
 - CallRevu: https://gurdittagarg-rgb.github.io/customer-rsi-miaw-issue/CallRevu/copilot-vs-agentforce-rag.html
 
 ## Vercel

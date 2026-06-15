@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RSI Full Sandbox - MIAW Test</title>
+</head>
+<body>
+    <h1>RSI Full Sandbox - Web Messaging Channel</h1>
+    <p>Standard Salesforce embedded messaging snippet for RSI Full sandbox.</p>
+
+    <script type='text/javascript'>
+        function initEmbeddedMessaging() {
+            try {
+                embeddedservice_bootstrap.settings.language = 'en_US';
+
+                embeddedservice_bootstrap.init(
+                    '00Dbb000003TaG5',
+                    'Web_Messaging_Channel',
+                    'https://rushstreetinteractive--full.sandbox.my.site.com/ESWWebMessagingChannel1769723204943',
+                    {
+                        scrt2URL: 'https://rushstreetinteractive--full.sandbox.my.salesforce-scrt.com'
+                    }
+                );
+            } catch (err) {
+                console.error('Error loading Embedded Messaging: ', err);
+            }
+        };
+    </script>
+    <script type='text/javascript' src='https://rushstreetinteractive--full.sandbox.my.site.com/ESWWebMessagingChannel1769723204943/assets/js/bootstrap.min.js' onload='initEmbeddedMessaging()'></script>
+</body>
+</html>
