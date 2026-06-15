@@ -4,14 +4,25 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MIAW Default Behaviour Test</title>
+    <style>
+        #status { position: fixed; bottom: 80px; right: 20px; background: #1a1a1a; color: #0f0; padding: 8px 12px; border-radius: 4px; font-family: monospace; font-size: 12px; max-width: 400px; z-index: 99999; }
+    </style>
 </head>
 <body>
     <h1>MIAW - Default Out-of-the-Box</h1>
     <p>No custom code. Just the standard Salesforce embed snippet.</p>
+    <div id="status">Loading MIAW...</div>
 
     <script type="text/javascript">
+        var statusEl = document.getElementById('status');
+        function log(msg) {
+            console.log('[MIAW] ' + msg);
+            statusEl.textContent = msg;
+        }
+
         function initEmbeddedMessaging() {
             try {
+                log('Initializing...');
                 embeddedservice_bootstrap.settings.language = 'en_US';
                 embeddedservice_bootstrap.init(
                     '00Dak00000sEqg8',
@@ -21,14 +32,17 @@
                         scrt2URL: 'https://trailsignup-6e56dfe7b2a6dc.my.salesforce-scrt.com'
                     }
                 );
+                log('Init called successfully. Waiting for widget...');
             } catch (err) {
+                log('ERROR: ' + err.message);
                 console.error('Error loading Embedded Messaging: ', err);
             }
         }
     </script>
-    <script type="text/javascript" async
+    <script type="text/javascript"
         src="https://trailsignup-6e56dfe7b2a6dc.my.site.com/ESWSDOMessagingforWeb1777410150100/assets/js/bootstrap.min.js"
-        onload="initEmbeddedMessaging()">
+        onload="log('Bootstrap loaded'); initEmbeddedMessaging();"
+        onerror="log('ERROR: bootstrap.min.js failed to load');">
     </script>
 </body>
 </html>
