@@ -4,25 +4,26 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MIAW Default Behaviour Test</title>
-    <style>
-        #status { display: none; }
-    </style>
 </head>
 <body>
     <h1>MIAW - Default Out-of-the-Box</h1>
     <p>No custom code. Just the standard Salesforce embed snippet.</p>
-    <div id="status">Loading MIAW...</div>
 
     <script type="text/javascript">
-        var statusEl = document.getElementById('status');
-        function log(msg) {
-            console.log('[MIAW] ' + msg);
-            statusEl.textContent = msg;
-        }
+        // Clear any cached MIAW state to prevent stale availability checks
+        Object.keys(localStorage).forEach(function(key) {
+            if (key.startsWith('ESW') || key.startsWith('embeddedservice') || key.startsWith('MIAW')) {
+                localStorage.removeItem(key);
+            }
+        });
+        Object.keys(sessionStorage).forEach(function(key) {
+            if (key.startsWith('ESW') || key.startsWith('embeddedservice') || key.startsWith('MIAW')) {
+                sessionStorage.removeItem(key);
+            }
+        });
 
         function initEmbeddedMessaging() {
             try {
-                log('Initializing...');
                 embeddedservice_bootstrap.settings.language = 'en_US';
                 embeddedservice_bootstrap.init(
                     '00Dak00000sEqg8',
@@ -32,17 +33,15 @@
                         scrt2URL: 'https://trailsignup-6e56dfe7b2a6dc.my.salesforce-scrt.com'
                     }
                 );
-                log('Init called successfully. Waiting for widget...');
             } catch (err) {
-                log('ERROR: ' + err.message);
                 console.error('Error loading Embedded Messaging: ', err);
             }
         }
     </script>
     <script type="text/javascript"
         src="https://trailsignup-6e56dfe7b2a6dc.my.site.com/ESWSDOMessagingforWeb1777410150100/assets/js/bootstrap.min.js"
-        onload="log('Bootstrap loaded'); initEmbeddedMessaging();"
-        onerror="log('ERROR: bootstrap.min.js failed to load');">
+        onload="initEmbeddedMessaging();"
+        onerror="document.body.innerHTML += '<p style=color:red>Failed to load MIAW bootstrap script.</p>';">
     </script>
 </body>
 </html>
